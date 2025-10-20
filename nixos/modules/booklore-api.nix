@@ -12,6 +12,12 @@ let cfg = config.services.booklore-api; in {
 	user = mkOption { type = types.str; default = "booklore"; };
 	group = mkOption { type = types.str; default = "booklore"; };
 
+	wants = mkOption {
+	  type = types.listOf types.string;
+	  description = "Wanted services and targets for triggering start";
+	  default = [ "mysql.service" "network-online.target"];
+	};
+
 	package = mkOption {
 	  type = types.package;
 	  description = "Booklore derivation that provides a fat JAR, and a optional JRE wrapper binary";
@@ -50,7 +56,7 @@ let cfg = config.services.booklore-api; in {
       passwordFile = mkOption { type = types.nullOr types.path; default = null; };
       password = mkOption { type = types.nullOr types.str; default = null; };
       # Supply a full JDBC URL yourself to override (otherwise composed from host/port/name).
-      jdbcUrl = mkOption { type = types.nullOr types.str; default = null; };
+      jdbcUrl = mkOption { type = types.str; default = "jdbc:mariadb://${cfg.database.host}:${builtins.toString(cfg.database.port)}/booklore"; };
     };
 
   };
@@ -68,11 +74,20 @@ let cfg = config.services.booklore-api; in {
 	  description = "Booklore API";
 	  wantedBy = [ "multi-user.target" ];
 	  after = [ "network-online.target" ];
-	  wants = [ "network-online.target" ];
+	  wants = cfg.wants;
 	  serviceConfig = {
         User = cfg.user;
 		Group = cfg.group;
 		ExecStart = "${cfg.package}/bin/booklore-api";
+	  };
+	  environment = {
+        TZ="Etc/UTC";
+        DATABASE_URL=cfg.database.jdbcUrl;	# Only modify this if you're familiar with JDBC and your database setup
+        DATABASE_USERNAME=cfg.database.user;							# Must match MYSQL_USER defined in the mariadb container
+        DATABASE_PASSWORD=cfg.database.password;				# Use a strong password; must match MYSQL_PASSWORD defined in the mariadb container 
+        BOOKLORE_PORT=builtins.toString(cfg.database.port);									# Port BookLore listens on inside the container; must match container port below
+        SWAGGER_ENABLED="false";								# Enable or disable Swagger UI (API docs). Set to 'true' to allow access; 'false' to block access (recommended for production).
+        FORCE_DISABLE_OIDC="false";								# Set to 'true' to force-disable OIDC and allow internal login, regardless of UI config
 	  };
 	};
   };
