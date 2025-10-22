@@ -15,7 +15,7 @@
     in {
 	  packages.${system} = {
 	    booklore-api = pkgs.callPackage ./booklore-api.nix { };
-		booklore-ui = pkgs.callPackage ./booklore-ui { };
+		booklore-ui = pkgs.callPackage ./booklore-ui.nix { };
       };
 	  nixosModules.booklore-api = import ./nixos/modules/booklore-api.nix;
 
