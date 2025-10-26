@@ -41,7 +41,8 @@
       cp -r dist/booklore/browser/* $out/share/booklore-ui/
 	  makeWrapper ${nodePackages.http-server}/bin/http-server \
 	  $out/bin/booklore-ui \
-	  --add-flags "$out/share/booklore-ui"
+	  --add-flags "$out/share/booklore-ui" \
+	  --add-flags "-p 6060"
 
 	  runHook postInstall
 	'';

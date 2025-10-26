@@ -8,8 +8,8 @@ let cfg = config.services.booklore-ui; in {
   options.services.booklore-ui = {
     enable = lib.mkEnableOption "booklore-ui service";
 
-	user = mkOption { type = types.str; default = "booklore"; };
-	group = mkOption { type = types.str; default = "booklore"; };
+	user = mkOption { type = types.str; default = "booklore-ui"; };
+	group = mkOption { type = types.str; default = "booklore-ui"; };
 
 	wants = mkOption {
 	  type = types.listOf types.string;
@@ -30,14 +30,14 @@ let cfg = config.services.booklore-ui; in {
 
     port = mkOption {
       type = types.port;
-	  default = 8080;
+	  default = 6060;
 	  description = "Port UI is served on";
 	};
 
 	api-port = mkOption {
       type = types.port;
-      default = 6060;
-      description = "Port to call API through";
+      default = 8080;
+      description = "Port to call API through, for now don't change this because it's hard coded in booklore (reference their enviroment.ts file)";
     };
 
   };
@@ -51,7 +51,7 @@ let cfg = config.services.booklore-ui; in {
 	};
 	users.groups.${cfg.group} = { };
 
-	systemd.services.booklore = {
+	systemd.services.booklore-ui = {
 	  description = "Booklore API";
 	  wantedBy = [ "multi-user.target" ];
 	  after = [ "network-online.target" ];
@@ -63,12 +63,11 @@ let cfg = config.services.booklore-ui; in {
 	  };
 	  environment = {
         TZ="Etc/UTC";
-        DATABASE_URL=cfg.database.jdbcUrl;	# Only modify this if you're familiar with JDBC and your database setup
-        DATABASE_USERNAME=cfg.database.user;							# Must match MYSQL_USER defined in the mariadb container
-        DATABASE_PASSWORD=cfg.database.password;				# Use a strong password; must match MYSQL_PASSWORD defined in the mariadb container 
-        BOOKLORE_PORT=builtins.toString(cfg.database.port);									# Port BookLore listens on inside the container; must match container port below
-        SWAGGER_ENABLED="false";								# Enable or disable Swagger UI (API docs). Set to 'true' to allow access; 'false' to block access (recommended for production).
-        FORCE_DISABLE_OIDC="false";								# Set to 'true' to force-disable OIDC and allow internal login, regardless of UI config
+        BOOKLORE_PORT=builtins.toString(cfg.api-port);
+        SWAGGER_ENABLED="false";
+        FORCE_DISABLE_OIDC="false";
+		PORT=builtins.toString(cfg.port);
+		HOST=cfg.host;
 	  };
 	};
   };
