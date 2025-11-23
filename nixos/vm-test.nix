@@ -6,8 +6,16 @@
 
   services.mysql = {
     enable = true;
-	package = pkgs.mariadb;
-	ensureDatabases = [ "booklore" ];
+		package = pkgs.mariadb;
+		ensureDatabases = [ "booklore" ];
+		# ensureUsers = [
+		# 	{
+		# 		name = "booklore";
+		# 		ensurePermissions = {
+		# 			"booklore.*" = "ALL PRIVILEGES";
+		# 		};
+		# 	}
+		# ];
   };
 
   systemd.services.setdbpass = {
@@ -20,7 +28,11 @@
 			User = "root";
 			ExecStart = ''
 				${pkgs.mariadb}/bin/mysql -u root -e \
-				"CREATE USER IF NOT EXISTS 'booklore'@'localhost' IDENTIFIED BY 'passwd';"
+				"
+					CREATE USER IF NOT EXISTS 'booklore'@'localhost' IDENTIFIED BY 'passwd';
+					GRANT ALL PRIVILEGES ON booklore.* TO 'booklore'@'localhost';
+					FLUSH PRIVILEGES;
+				"
 			'';
 		};
   };
@@ -28,7 +40,7 @@
   services.booklore-api = {
     enable = true;
 		package = self.packages.${pkgs.system}.booklore-api;
-		database.host = "localhost";
+		database.host = "127.0.0.1";
 		database.password = "passwd";
 		port = 7070;
 		wants = [ "mysql.service" "network-online.target" "mysql.service" ];
@@ -37,53 +49,55 @@
 
   services.booklore-ui = {
     enable = true;
-	package = self.packages.${pkgs.system}.booklore-ui;
-  };
+		package = self.packages.${pkgs.system}.booklore-ui;
+	};
 
   programs.firefox.enable = true;
   programs.sway.enable = true;
 
   services = {
-	displayManager.sddm.enable = true;
-	displayManager.sddm.wayland.enable = true;
+		displayManager.sddm.enable = true;
+		displayManager.sddm.wayland.enable = true;
   };
 
   users.users.carter = {
     isNormalUser = true;
-	enable = true;
-	password = "Test";
-    extraGroups = [ "wheel" "networkmanager" ];
+		enable = true;
+		password = "Test";
+		extraGroups = [ "wheel" "networkmanager" ];
   };
 
   services.nginx = {
-    enable = true;
-	recommendedProxySettings = true;
-	recommendedTlsSettings = true;
+		enable = true;
+		recommendedProxySettings = true;
+		recommendedTlsSettings = true;
 
-	virtualHosts."booklore.local" = {
-      listen = [{
-	    addr = "0.0.0.0";
-		port = 8080;
-	  }];
+		virtualHosts."booklore.local" = {
+			listen = [{
+				addr = "0.0.0.0";
+				port = 8080;
+			}];
 
-	  locations."/" = {
-	    proxyPass = "http://127.0.0.1:6060";
-	    extraConfig = ''
-		  proxy_set_header X-Forwarded-Port 8080;
-		  proxy_set_header X-Forwarded-Host localhost;
-		'';
-	  };
-	  locations."/api" = {
-	    proxyPass = "http://127.0.0.1:7070";
-	    extraConfig = ''
-		  proxy_set_header X-Forwarded-Port 8080;
-		  proxy_set_header X-Forwarded-Host localhost;
-		'';
-	  };
-	  locations."/ws" = {
-	    proxyPass = "http://127.0.0.1:7070/ws";
-		proxyWebsockets = true;
-	  };
-	};
+			locations."/" = {
+				proxyPass = "http://127.0.0.1:6060";
+				extraConfig = ''
+				proxy_set_header X-Forwarded-Port 8080;
+				proxy_set_header X-Forwarded-Host localhost;
+			'';
+			};
+
+			locations."/api" = {
+				proxyPass = "http://127.0.0.1:7070";
+				extraConfig = ''
+				proxy_set_header X-Forwarded-Port 8080;
+				proxy_set_header X-Forwarded-Host localhost;
+			'';
+			};
+
+			locations."/ws" = {
+				proxyPass = "http://127.0.0.1:7070/ws";
+				proxyWebsockets = true;
+			};
+		};
   };
 }

@@ -10,3 +10,5 @@ deps.json:
 	./result
 vm:
 	nix build .#nixosConfigurations.vm.config.system.build.vm
+lint:
+	nix run nixpkgs#statix -- check

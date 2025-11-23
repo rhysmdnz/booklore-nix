@@ -74,23 +74,30 @@ let cfg = config.services.booklore-api; in {
 	};
 	users.groups.${cfg.group} = { };
 
+	systemd.tmpfiles.rules = [
+    "d /app/data 0755 booklore booklore -"
+    "d /books 0755 booklore booklore -"
+    "d /bookdrop 0755 booklore booklore -"
+    "d ${cfg.dataDir} 0755 booklore booklore -"
+  ];
+
 	systemd.services.booklore-api = {
 	  description = "Booklore API";
 	  wantedBy = [ "multi-user.target" ];
 	  after = cfg.after;
 	  wants = cfg.wants;
 	  serviceConfig = {
-        User = cfg.user;
+    User = cfg.user;
 		Group = cfg.group;
 		ExecStart = "${cfg.package}/bin/booklore-api";
 	  };
 	  environment = {
-        TZ="Etc/UTC";
-        DATABASE_URL=cfg.database.jdbcUrl;
-        DATABASE_USERNAME=cfg.database.user;
-        DATABASE_PASSWORD=cfg.database.password;
-        SWAGGER_ENABLED="false";
-        FORCE_DISABLE_OIDC="false";
+			TZ="Etc/UTC";
+			DATABASE_URL=cfg.database.jdbcUrl;
+			DATABASE_USERNAME=cfg.database.user;
+			DATABASE_PASSWORD=cfg.database.password;
+			SWAGGER_ENABLED="false";
+			FORCE_DISABLE_OIDC="false";
 	  };
 	};
   };
