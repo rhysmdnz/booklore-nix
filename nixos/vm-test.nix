@@ -27,14 +27,6 @@
 			enable = true;
 			package = pkgs.mariadb;
 			ensureDatabases = [ "booklore" ];
-			# ensureUsers = [
-			# 	{
-			# 		name = "booklore";
-			# 		ensurePermissions = {
-			# 			"booklore.*" = "ALL PRIVILEGES";
-			# 		};
-			# 	}
-			# ];
 		};
 
 		booklore-api = {
