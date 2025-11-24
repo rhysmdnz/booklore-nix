@@ -92,6 +92,7 @@ let cfg = config.services.booklore-api; in {
 		ExecStart = "${cfg.package}/bin/booklore-api";
 	  };
 	  environment = {
+			BOOKLORE_PORT=builtins.toString(cfg.port);
 			TZ="Etc/UTC";
 			DATABASE_URL=cfg.database.jdbcUrl;
 			DATABASE_USERNAME=cfg.database.user;

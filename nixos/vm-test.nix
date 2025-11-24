@@ -42,7 +42,7 @@
 		package = self.packages.${pkgs.system}.booklore-api;
 		database.host = "127.0.0.1";
 		database.password = "passwd";
-		port = 7070;
+		port = 8080;
 		wants = [ "mysql.service" "network-online.target" "mysql.service" ];
 		after = [ "network-online.target" ];
   };
@@ -75,21 +75,21 @@
 		virtualHosts."booklore.local" = {
 			listen = [{
 				addr = "0.0.0.0";
-				port = 8080;
+				port = 7070;
 			}];
 
 			locations."/" = {
 				proxyPass = "http://127.0.0.1:6060";
 				extraConfig = ''
-				proxy_set_header X-Forwarded-Port 8080;
+				proxy_set_header X-Forwarded-Port 7070;
 				proxy_set_header X-Forwarded-Host localhost;
 			'';
 			};
 
 			locations."/api" = {
-				proxyPass = "http://127.0.0.1:7070";
+				proxyPass = "http://127.0.0.1:8080";
 				extraConfig = ''
-				proxy_set_header X-Forwarded-Port 8080;
+				proxy_set_header X-Forwarded-Port 7070;
 				proxy_set_header X-Forwarded-Host localhost;
 			'';
 			};
