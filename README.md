@@ -21,7 +21,92 @@ that compose the application. These then interact with:
 Here is the default minimum configuration for the service.
 
 ```nix
+{
+  # Service for creating a mariadb password
+  # WARNING: DON'T EXPOSE A STRING PASSWORD IN YOUR ACTUAL CONFIG!!!
+  systemd.services.setdbpass = {
+        wants = [ "mysql.service" ];
+        after = [ "mysql.service" ];
+        wantedBy = [ "multi-user.target" ];
+        serviceConfig = {
+            Type = "oneshot";
+            RemainAfterExit = true;
+            User = "root";
+            ExecStart = ''
+                ${pkgs.mariadb}/bin/mysql -u root -e \
+                "
+                    CREATE USER IF NOT EXISTS 'booklore'@'localhost' IDENTIFIED BY 'passwd';
+                    GRANT ALL PRIVILEGES ON booklore.* TO 'booklore'@'localhost';
+                    FLUSH PRIVILEGES;
+                "
+            '';
+        };
+    };
+    services = {
+        # MariaDB
+        mysql = {
+            enable = true;
+            package = pkgs.mariadb;
+            ensureDatabases = [ "booklore" ];
+        };
+        # API is a java server on port 8080 by default
+        # For full options check the ./nixos/modules/booklore-api.nix file
+        booklore-api = {
+            enable = true;
+            package = self.packages.${pkgs.system}.booklore-api;
+            database.host = "127.0.0.1";
+            database.password = "passwd";
+            wants = [ "mysql.service" "network-online.target" "mysql.service" ];
+            after = [ "network-online.target" ];
+        };
+        # Static web site served on port 6060 by default
+        # For full options check ./nixos/modules/booklore-ui.nix file
+        booklore-ui = {
+            enable = true;
+            package = self.packages.${pkgs.system}.booklore-ui;
+        };
+        # NGINX to serve both sites from the same port. By default 7070
+        # This combines our UI to be served at port 7070
+        # And our API on port 7070/api
+        # And a API websocket on port 7070/ws
+        # This helps avoid cors issues and is a hard coded requirement of booklore right now
+        nginx = {
+            enable = true;
+            recommendedProxySettings = true;
+            recommendedTlsSettings = true;
 
+            virtualHosts."booklore.local" = {
+                listen = [{
+                    addr = "0.0.0.0";
+                    port = 7070;
+                }];
+
+                locations = {
+                    "/" = {
+                        proxyPass = "http://127.0.0.1:6060";
+                        extraConfig = ''
+                        proxy_set_header X-Forwarded-Port 7070;
+                        proxy_set_header X-Forwarded-Host localhost;
+                        '';
+                    };
+
+                    "/api" = {
+                        proxyPass = "http://127.0.0.1:8080";
+                        extraConfig = ''
+                        proxy_set_header X-Forwarded-Port 7070;
+                        proxy_set_header X-Forwarded-Host localhost;
+                        '';
+                    };
+
+                    "/ws" = {
+                        proxyPass = "http://127.0.0.1:7070/ws";
+                        proxyWebsockets = true;
+                    };
+                };
+            };
+        };
+    };
+}
 ```
 
 **Currently there are some issues with port configuration because of the upstream repository, so currently the configuration requires the ports:**
