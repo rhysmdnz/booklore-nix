@@ -5,7 +5,8 @@
   makeWrapper,
   nodejs,
   nodePackages,
-}: let
+}:
+let
   version = "v1.6.0";
 
   _src = fetchFromGitHub {
@@ -15,37 +16,40 @@
     sha256 = "0c369fl6wds75kync2kgjm1z1777rbbnlsk9z606lgicqv4akw4v";
   };
 
-  self = buildNpmPackage (_finalAttrs:{
+  self = buildNpmPackage (_finalAttrs: {
     pname = "booklore-ui";
     inherit version;
 
-	src = _src;
+    src = _src;
 
-	sourceRoot = "${_src.name}/booklore-ui";
+    sourceRoot = "${_src.name}/booklore-ui";
 
     npmDepsHash = "sha256-ETzFwSNF+qLuiKdnkwsd9LUqEtNf5fJpgmO4+rfnWr8=";
-    
-	npmPackFlags = [ "--ignore-scripts" ];
+
+    npmPackFlags = [ "--ignore-scripts" ];
 
     NODE_OPTIONS = "--openssl-legacy-provider";
 
-	nativeBuildInputs = [ makeWrapper ];
-	buildInputs = [ nodejs nodePackages.http-server ];
+    nativeBuildInputs = [ makeWrapper ];
+    buildInputs = [
+      nodejs
+      nodePackages.http-server
+    ];
 
     installPhase = ''
-	  runHook preInstall
+      	  runHook preInstall
 
-	  mkdir -p $out/bin
-	  mkdir -p $out/share
-	  mkdir -p $out/share/booklore-ui
-      cp -r dist/booklore/browser/* $out/share/booklore-ui/
-	  makeWrapper ${nodePackages.http-server}/bin/http-server \
-	  $out/bin/booklore-ui \
-	  --add-flags "$out/share/booklore-ui" \
-	  --add-flags "-p 6060"
+      	  mkdir -p $out/bin
+      	  mkdir -p $out/share
+      	  mkdir -p $out/share/booklore-ui
+            cp -r dist/booklore/browser/* $out/share/booklore-ui/
+      	  makeWrapper ${nodePackages.http-server}/bin/http-server \
+      	  $out/bin/booklore-ui \
+      	  --add-flags "$out/share/booklore-ui" \
+      	  --add-flags "-p 6060"
 
-	  runHook postInstall
-	'';
+      	  runHook postInstall
+      	'';
 
     meta = {
       description = "Web UI for Booklore";
@@ -55,4 +59,4 @@
     };
   });
 in
-  self
+self
