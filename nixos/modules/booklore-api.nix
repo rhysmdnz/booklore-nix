@@ -1,4 +1,6 @@
 {
+	booklore-api,
+	pkgs,
   lib,
   config,
   ...
@@ -30,6 +32,7 @@ in
 
     package = lib.mkOption {
       type = lib.types.package;
+      default = booklore-api;
       description = "Booklore derivation that provides a fat JAR, and a optional JRE wrapper binary";
     };
 

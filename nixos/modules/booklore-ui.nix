@@ -1,12 +1,11 @@
 {
-  lib,
-  config,
-  ...
+	booklore-ui,
+	pkgs,
+	lib,
+	config,
+	...
 }:
-let
-  cfg = config.services.booklore-ui;
-in
-{
+let cfg = config.services.booklore-ui; in {
   options.services.booklore-ui = {
     enable = lib.mkEnableOption "booklore-ui service";
 
@@ -30,6 +29,7 @@ in
 
     package = lib.mkOption {
       type = lib.types.package;
+      default = booklore-ui;
       description = "Booklore UI static website build with npm wrapper";
     };
 

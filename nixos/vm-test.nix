@@ -44,8 +44,8 @@
 
     booklore-ui = {
       enable = true;
-      package = self.packages.${pkgs.system}.booklore-ui;
     };
+
     displayManager.sddm.enable = true;
     displayManager.sddm.wayland.enable = true;
     nginx = {
