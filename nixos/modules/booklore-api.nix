@@ -3,7 +3,6 @@
   config,
   ...
 }:
-with lib;
 let
   cfg = config.services.booklore-api;
 in
@@ -11,17 +10,17 @@ in
   options.services.booklore-api = {
     enable = lib.mkEnableOption "booklore-api service";
 
-    user = mkOption {
-      type = types.str;
+    user = lib.mkOption {
+      type = lib.types.str;
       default = "booklore";
     };
-    group = mkOption {
-      type = types.str;
+    group = lib.mkOption {
+      type = lib.types.str;
       default = "booklore";
     };
 
-    wants = mkOption {
-      type = types.listOf types.str;
+    wants = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
       description = "Wanted services and targets for triggering start";
       default = [
         "mysql.service"
@@ -29,76 +28,76 @@ in
       ];
     };
 
-    package = mkOption {
-      type = types.package;
+    package = lib.mkOption {
+      type = lib.types.package;
       description = "Booklore derivation that provides a fat JAR, and a optional JRE wrapper binary";
     };
 
-    # port = mkOption {
-    # 	type = types.port;
+    # port = lib.mkOption {
+    # 	type = lib.types.port;
     # 	default = 6060;
     # 	description = "Port BookLore API listens on";
     # };
 
-    dataDir = mkOption {
-      type = types.path;
+    dataDir = lib.mkOption {
+      type = lib.types.path;
       default = "/var/lib/booklore/data";
       description = "Persistent BookLore application data directory.";
     };
 
-    booksDir = mkOption {
-      type = types.nullOr types.path;
+    booksDir = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
       default = null;
       description = "Primary books library directory to mount read/write into the service.";
     };
 
-    bookdropDir = mkOption {
-      type = types.nullOr types.path;
+    bookdropDir = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
       default = null;
       description = "BookDrop directory watched for imports.";
     };
 
-    after = mkOption {
-      type = types.listOf types.str;
+    after = lib.mkOption {
+      type = lib.types.listOf lib.types.str;
       default = [ "network-online.target" ];
       description = "The targets and services we wait on to start";
     };
 
     database = {
-      host = mkOption {
-        type = types.str;
+      host = lib.mkOption {
+        type = lib.types.str;
         default = "127.0.0.1";
       };
-      port = mkOption {
-        type = types.port;
+      port = lib.mkOption {
+        type = lib.types.port;
         default = 3306;
       };
-      name = mkOption {
-        type = types.str;
+      name = lib.mkOption {
+        type = lib.types.str;
         default = "booklore";
       };
-      user = mkOption {
-        type = types.str;
+      user = lib.mkOption {
+        type = lib.types.str;
         default = "booklore";
       };
       # Prefer a passwordFile for secrets; plain password allowed for testing.
-      passwordFile = mkOption {
-        type = types.nullOr types.path;
+      passwordFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
         default = null;
       };
-      password = mkOption {
-        type = types.nullOr types.str;
+      password = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
         default = null;
       };
       # Supply a full JDBC URL yourself to override (otherwise composed from host/port/name).
-      jdbcUrl = mkOption {
-        type = types.str;
+      jdbcUrl = lib.mkOption {
+        type = lib.types.str;
         default = "jdbc:mariadb://${cfg.database.host}:${builtins.toString cfg.database.port}/booklore";
       };
     };
   };
 
-  config = mkIf cfg.enable {
+  config = lib.mkIf cfg.enable {
     users.users.${cfg.user} = {
       isSystemUser = true;
       inherit (cfg) group;

@@ -14,6 +14,7 @@
     }:
     let
       system = "x86_64-linux";
+      version = "v1.6.0";
       pkgs = import nixpkgs {
         inherit system;
         overlays = [ build-gradle-application.overlays.default ];
@@ -22,8 +23,8 @@
     {
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;
       packages.${system} = {
-        booklore-api = pkgs.callPackage ./booklore-api.nix { };
-        booklore-ui = pkgs.callPackage ./booklore-ui.nix { };
+        booklore-api = pkgs.callPackage ./booklore-api.nix { inherit version; };
+        booklore-ui = pkgs.callPackage ./booklore-ui.nix { inherit version; };
       };
       nixosModules.booklore-api = import ./nixos/modules/booklore-api.nix;
       nixosModules.booklore-ui = import ./nixos/modules/booklore-ui.nix;

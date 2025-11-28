@@ -5,58 +5,53 @@
   makeWrapper,
   nodejs,
   nodePackages,
+  stdenv,
+  version,
 }:
-let
-  version = "v1.6.0";
 
-  _src = fetchFromGitHub {
+buildNpmPackage (_finalAttrs: {
+  pname = "booklore-ui";
+  inherit version;
+  src = fetchFromGitHub {
     owner = "booklore-app";
     repo = "booklore";
-    rev = "v1.6.0";
+    rev = version;
     sha256 = "0c369fl6wds75kync2kgjm1z1777rbbnlsk9z606lgicqv4akw4v";
   };
 
-  self = buildNpmPackage (_finalAttrs: {
-    pname = "booklore-ui";
-    inherit version;
+  sourceRoot = "${_finalAttrs.src.name}/booklore-ui";
 
-    src = _src;
+  npmDepsHash = "sha256-ETzFwSNF+qLuiKdnkwsd9LUqEtNf5fJpgmO4+rfnWr8=";
 
-    sourceRoot = "${_src.name}/booklore-ui";
+  npmPackFlags = [ "--ignore-scripts" ];
 
-    npmDepsHash = "sha256-ETzFwSNF+qLuiKdnkwsd9LUqEtNf5fJpgmO4+rfnWr8=";
+  NODE_OPTIONS = "--openssl-legacy-provider";
 
-    npmPackFlags = [ "--ignore-scripts" ];
+  nativeBuildInputs = [ makeWrapper ];
+  buildInputs = [
+    nodejs
+    nodePackages.http-server
+  ];
 
-    NODE_OPTIONS = "--openssl-legacy-provider";
+  installPhase = ''
+    	  runHook preInstall
 
-    nativeBuildInputs = [ makeWrapper ];
-    buildInputs = [
-      nodejs
-      nodePackages.http-server
-    ];
+    	  mkdir -p $out/bin
+    	  mkdir -p $out/share
+    	  mkdir -p $out/share/booklore-ui
+          cp -r dist/booklore/browser/* $out/share/booklore-ui/
+    	  makeWrapper ${nodePackages.http-server}/bin/http-server \
+    	  $out/bin/booklore-ui \
+    	  --add-flags "$out/share/booklore-ui" \
+    	  --add-flags "-p 6060"
 
-    installPhase = ''
-      	  runHook preInstall
+    	  runHook postInstall
+    	'';
 
-      	  mkdir -p $out/bin
-      	  mkdir -p $out/share
-      	  mkdir -p $out/share/booklore-ui
-            cp -r dist/booklore/browser/* $out/share/booklore-ui/
-      	  makeWrapper ${nodePackages.http-server}/bin/http-server \
-      	  $out/bin/booklore-ui \
-      	  --add-flags "$out/share/booklore-ui" \
-      	  --add-flags "-p 6060"
-
-      	  runHook postInstall
-      	'';
-
-    meta = {
-      description = "Web UI for Booklore";
-      homepage = "https://github.com/booklore-app/booklore/tree/develop";
-      license = lib.licenses.gpl3Only;
-      maintainers = with lib.maintainers; [ carter ];
-    };
-  });
-in
-self
+  meta = {
+    description = "Web UI for Booklore";
+    homepage = "https://github.com/booklore-app/booklore/tree/develop";
+    license = lib.licenses.gpl3Only;
+    maintainers = with lib.maintainers; [ carter ];
+  };
+})
