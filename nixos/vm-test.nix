@@ -11,13 +11,13 @@
       RemainAfterExit = true;
       User = "root";
       ExecStart = ''
-        				${pkgs.mariadb}/bin/mysql -u root -e \
-        				"
-        					CREATE USER IF NOT EXISTS 'booklore'@'localhost' IDENTIFIED BY 'passwd';
-        					GRANT ALL PRIVILEGES ON booklore.* TO 'booklore'@'localhost';
-        					FLUSH PRIVILEGES;
-        				"
-        			'';
+				${pkgs.mariadb}/bin/mysql -u root -e \
+				"
+					CREATE USER IF NOT EXISTS 'booklore'@'localhost' IDENTIFIED BY 'passwd';
+					GRANT ALL PRIVILEGES ON booklore.* TO 'booklore'@'localhost';
+					FLUSH PRIVILEGES;
+				"
+			'';
     };
   };
 

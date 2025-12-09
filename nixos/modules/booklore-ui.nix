@@ -54,7 +54,7 @@ let cfg = config.services.booklore-ui; in {
   };
 
   config = lib.mkIf cfg.enable {
-    users.users.${cfg.user} = {
+    users.users.${cfg.user} = lib.mkIf (cfg.user == "booklore") {
       isSystemUser = true;
       inherit (cfg) group;
       home = "/var/lib/booklore";
