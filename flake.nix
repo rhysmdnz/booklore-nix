@@ -2,14 +2,12 @@
   description = "Booklore flake";
 
   inputs = {
-    build-gradle-application.url = "github:raphiz/buildGradleApplication";
   };
 
   outputs =
     {
       self,
       nixpkgs,
-      build-gradle-application,
       ...
     }:
     let
@@ -17,9 +15,6 @@
       version = "v1.13.2";
       pkgs = import nixpkgs {
         inherit system;
-        overlays = [
-					build-gradle-application.overlays.default 
-				];
       };
 			booklore-api = pkgs.callPackage ./booklore-api.nix { inherit version; };
 			booklore-ui = pkgs.callPackage ./booklore-ui.nix { inherit version; };
