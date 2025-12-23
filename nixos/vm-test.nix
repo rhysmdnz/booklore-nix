@@ -1,4 +1,4 @@
-{ self, pkgs, ... }:
+{ pkgs, booklore-api, booklore-ui, ... }:
 
 {
   networking.hostName = "booklore-vm";
@@ -33,13 +33,9 @@
 
     booklore-api = {
       enable = true;
-      package = self.packages.${pkgs.system}.booklore-api;
+      package = booklore-api;
       database.host = "127.0.0.1";
       database.password = "passwd";
-    };
-
-    booklore-ui = {
-      enable = true;
     };
 
     displayManager.sddm.enable = true;
@@ -49,37 +45,39 @@
       recommendedProxySettings = true;
       recommendedTlsSettings = true;
 
-      virtualHosts."booklore.local" = {
+			virtualHosts."booklore.local" = {
+				root = "${booklore-ui}/lib/node_modules/booklore/dist/booklore/browser/";
+				# index = "index.html";
         listen = [
-          {
-            addr = "0.0.0.0";
-            port = 7070;
-          }
+          { port = 7070; addr = "0.0.0.0"; }
         ];
-
-        locations = {
-          "/" = {
-            proxyPass = "http://127.0.0.1:6060";
-            extraConfig = ''
-              						proxy_set_header X-Forwarded-Port 7070;
-              						proxy_set_header X-Forwarded-Host localhost;
-              					'';
-          };
-
-          "/api" = {
+				locations = {
+					"/" = {
+						tryFiles="$uri $uri/ /index.html";
+						extraConfig = ''
+							location ~* \.mjs$ {
+									# target only *.mjs files
+									# now we can safely override types since we are only
+									# targeting a single file extension.
+									types {
+											text/javascript mjs;
+									}
+							}
+						'';
+					};
+          "/api/" = {
             proxyPass = "http://127.0.0.1:8080";
             extraConfig = ''
               						proxy_set_header X-Forwarded-Port 7070;
               						proxy_set_header X-Forwarded-Host localhost;
               					'';
           };
-
           "/ws" = {
-            proxyPass = "http://127.0.0.1:7070/ws";
+            proxyPass = "http://127.0.0.1:8080/ws";
             proxyWebsockets = true;
           };
-        };
-      };
+				};
+			};
     };
   };
 

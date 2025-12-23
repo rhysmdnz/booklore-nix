@@ -21,7 +21,6 @@
 			inherit booklore-api booklore-ui;
 		};
 		nixosModules.booklore-api = import ./nixos/modules/booklore-api.nix;
-		nixosModules.booklore-ui = import ./nixos/modules/booklore-ui.nix;
 
 		nixosConfigurations.vm = nixpkgs.lib.nixosSystem {
 			inherit system;
@@ -30,8 +29,7 @@
 			};
 			modules = [
 				self.nixosModules.booklore-api
-				self.nixosModules.booklore-ui
-				(import ./nixos/vm-test.nix { inherit self pkgs; })
+				./nixos/vm-test.nix
 				# Config for VM allocation
 				(
 					{ config, pkgs, ... }:
