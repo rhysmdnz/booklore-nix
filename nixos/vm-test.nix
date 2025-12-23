@@ -33,7 +33,6 @@
 
     booklore-api = {
       enable = true;
-      package = booklore-api;
       database.host = "127.0.0.1";
       database.password = "passwd";
     };
@@ -42,9 +41,6 @@
     displayManager.sddm.wayland.enable = true;
     nginx = {
       enable = true;
-      recommendedProxySettings = true;
-      recommendedTlsSettings = true;
-
 			virtualHosts."booklore.local" = {
 				root = "${booklore-ui}/lib/node_modules/booklore/dist/booklore/browser/";
 				# index = "index.html";
