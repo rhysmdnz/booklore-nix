@@ -8,7 +8,7 @@
     let
       system = "x86_64-linux";
       version = "v1.17.0";
-			hash = "sha256-JPObz0K5gn2utfHWvdIaf0sWq87x2Nrj8AxSNrH9T90=";
+			sha256 = "sha256-JPObz0K5gn2utfHWvdIaf0sWq87x2Nrj8AxSNrH9T90=";
       pkgs = import nixpkgs {
         inherit system;
       };
