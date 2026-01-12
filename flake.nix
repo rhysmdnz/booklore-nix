@@ -7,7 +7,7 @@
     { self, nixpkgs, ... }:
     let
       system = "x86_64-linux";
-      version = "v1.14.1";
+      version = "v1.17.0";
 			sha256 = "01ikqf3fmyghyg7zi8s9c8yi2b0s31f6xv20ig7nzn9kqv9ks37h";
       pkgs = import nixpkgs {
         inherit system;
