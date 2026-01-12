@@ -23,7 +23,7 @@ buildNpmPackage (finalAttrs: {
 
   sourceRoot = "${finalAttrs.src.name}/booklore-ui";
 
-  npmDepsHash = "sha256-DEC67N9ArHpM5cR+l1gYkt3pQy1C5EH2jq9e/05qdDA=";
+  npmDepsHash = "sha256-bNiz5eknEOP7dqo9PnIJY13yjQMEoPHaT+U0u3sf2vo=";
 
   npmPackFlags = [ "--ignore-scripts" ];
 
